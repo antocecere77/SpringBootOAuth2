@@ -11,7 +11,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/users")
+                .antMatchers(HttpMethod.GET, "/users/status/check")
                 .hasAuthority("SCOPE_profile")
                    .anyRequest().authenticated()
                    .and()
