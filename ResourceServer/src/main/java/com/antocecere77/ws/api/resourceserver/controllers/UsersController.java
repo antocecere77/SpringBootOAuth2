@@ -25,10 +25,10 @@ public class UsersController {
         return "Delete user with id " + id + " and JWT subject " + jwt.getSubject();
     }
 
+    @PostAuthorize("returnObject.userId == jwt.subject")
     @GetMapping("/{id}")
     public UserRest getUser(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
         return UserRest.builder()
-                .userId(id)
                 .userFirstName("Antonio")
                 .userLastName("Cecere")
                 .build();
