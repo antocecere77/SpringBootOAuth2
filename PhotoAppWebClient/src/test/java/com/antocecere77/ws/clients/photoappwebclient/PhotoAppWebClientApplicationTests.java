@@ -1,4 +1,4 @@
-package com.antocecere77.ws.clients;
+package com.antocecere77.ws.clients.photoappwebclient;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
