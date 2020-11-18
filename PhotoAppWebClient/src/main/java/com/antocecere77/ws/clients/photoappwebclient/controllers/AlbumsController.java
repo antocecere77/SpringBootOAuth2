@@ -2,6 +2,11 @@ package com.antocecere77.ws.clients.photoappwebclient.controllers;
 
 import com.antocecere77.ws.clients.photoappwebclient.photoappwebclient.response.AlbumRest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -12,14 +17,18 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 public class AlbumsController {
 
     private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
+
+    private final RestTemplate restTemplate;
 
     @GetMapping("/albums")
     public String getAlbums(Model model, @AuthenticationPrincipal OidcUser principal,
@@ -38,19 +47,30 @@ public class AlbumsController {
         String idTokenValue = idToken.getTokenValue();
         System.out.println("idTokenValue = " + idTokenValue);
 
-        AlbumRest album = AlbumRest.builder()
-                .albumId("albumOne")
-                .albumTitle("Album one title")
-                .albumUrl("http://localhost:8082/albums/1")
-                .build();
+        String url = "http://localhost:8082/albums";
 
-        AlbumRest album2 = AlbumRest.builder()
-                .albumId("albumTwo")
-                .albumTitle("Album two title")
-                .albumUrl("http://localhost:8082/albums/2")
-                .build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + jwtAccessToken);
+        HttpEntity<List<AlbumRest>> entity = new HttpEntity<>(headers);
 
-        model.addAttribute("albums", Arrays.asList(album, album2));
+        ResponseEntity<List<AlbumRest>> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<AlbumRest>>() {});
+        List<AlbumRest> albums = responseEntity.getBody();
+
+        //AlbumRest album = AlbumRest.builder()
+        //        .albumId("albumOne")
+        //        .albumTitle("Album one title")
+        //        .albumUrl("http://localhost:8082/albums/1")
+        //        .build();
+        //
+        //AlbumRest album2 = AlbumRest.builder()
+        //        .albumId("albumTwo")
+        //        .albumTitle("Album two title")
+        //        .albumUrl("http://localhost:8082/albums/2")
+        //        .build();
+        //
+        //model.addAttribute("albums", Arrays.asList(album, album2));
+
+        model.addAttribute("albums", albums);
         return "albums";
     }
 }
