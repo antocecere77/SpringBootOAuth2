@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +30,8 @@ public class AlbumsController {
     private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
 
     private final RestTemplate restTemplate;
+
+    private final WebClient webClient;
 
     @GetMapping("/albums")
     public String getAlbums(Model model, @AuthenticationPrincipal OidcUser principal,
@@ -69,6 +72,22 @@ public class AlbumsController {
         //        .build();
         //
         //model.addAttribute("albums", Arrays.asList(album, album2));
+
+        model.addAttribute("albums", albums);
+        return "albums";
+    }
+
+    @GetMapping("/albums-reactive")
+    public String getAlbumsReactive(Model model, @AuthenticationPrincipal OidcUser principal,
+                            Authentication authentication) {
+
+        String url = "http://localhost:8082/albums";
+
+        List<AlbumRest> albums = webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<AlbumRest>>(){})
+                .block();
 
         model.addAttribute("albums", albums);
         return "albums";
