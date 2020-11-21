@@ -5,6 +5,7 @@
     <title>Javascript application with PKCE</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script language="JavaScript">
+
         function generateState(length) {
             var stateValue = "";
             var alphaNumericCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -24,6 +25,19 @@
             document.getElementById("codeVerifierValue").innerHTML = returnValue;
         }
 
+        async function generateCodeChallenge() {
+            var codeChallengeValue = "";
+            var codeVerifier = document.getElementById("codeVerifierValue").innerHTML;
+
+            var textEncoder = new TextEncoder('US-ASCII');
+            var encodedValue = textEncoder.encode(codeVerifier);
+            var digest = await window.crypto.subtle.digest("SHA-256", encodedValue);
+
+            codeChallengeValue = base64urlencode(Array.from(new Uint8Array(digest)));
+
+            document.getElementById("codeChallengeValue").innerHTML = codeChallengeValue;
+        }
+
         function base64urlencode(sourceValue) {
             var stringValue = String.fromCharCode.apply(null, sourceValue);
             var base64Encoded = btoa(stringValue);
@@ -40,5 +54,8 @@
 
     <div id="codeVerifierValue"></div>
     <div><input type="button" value="Generate Code Verifier value" onclick="generateCodeVerifier()"/></div>
+
+    <div id="codeChallengeValue"></div>
+    <div><input type="button" value="Generate Code Challenge value" onclick="generateCodeChallenge()"/></div>
 </body>
 </html>
