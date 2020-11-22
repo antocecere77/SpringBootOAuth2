@@ -65,11 +65,37 @@
 	      //alert("State = " + state + ", authCode = " + authCode);
 	      var originalStateValue = document.getElementById("stateValue").innerHTML;
 	      if(state === originalStateValue) {
-
+            requestTokens(authCode);
 	      } else {
 		    alert("Invalid state value received");
 	      }
 	    }
+
+	    function requestTokens(authCode) {
+            var codeVerifier = document.getElementById("codeVerifierValue").innerHTML;
+            var data = {
+                "grant_type": "authorization_code",
+                "client_id": "photo-app-PKCE-client",
+                "code": authCode,
+                "code_verifier": codeVerifier,
+                "redirect_uri":"http://localhost:8181/authcodeReader.html"
+            };
+
+            $.ajax({
+                beforeSend: function (request) {
+                    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+                },
+                type: "POST",
+                url: "http://localhost:8180/auth/realms/appsdeveloperblog/protocol/openid-connect/token",
+                data: data,
+                success: postRequestAccessToken,
+                dataType: "json"
+            });
+        }
+
+        function postRequestAccessToken(data, status, jqXHR) {
+            document.getElementById("accessToken").innerHTML = data["access_token"];
+        }
     </script>
 </head>
 <body>
@@ -86,5 +112,7 @@
 
     <br/>
     <div><input type="button" value="Get Auth Code" onclick="getAuthCode()"/></div>
+
+    <p>Access token: <span id="accessToken"></span></p>
 </body>
 </html>
