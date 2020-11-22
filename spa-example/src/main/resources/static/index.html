@@ -44,6 +44,22 @@
             var base64urlEncoded = base64Encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
             return base64urlEncoded;
         }
+
+        function getAuthCode() {
+            var state = document.getElementById("stateValue").innerHTML;
+            var codeChallenge = document.getElementById("codeChallengeValue").innerHTML;
+
+            var authorizationURL = "http://localhost:8180/auth/realms/appsdeveloperblog/protocol/openid-connect/auth";
+            authorizationURL += "?client_id=photo-app-PKCE-client";
+            authorizationURL += "&response_type=code";
+            authorizationURL += "&scope=openid";
+            authorizationURL += "&redirect_uri=http://localhost:8181/authcodeReader.html";
+            authorizationURL += "&state=" + state;
+            authorizationURL += "&code_challenge=" + codeChallenge;
+            authorizationURL += "&code_challenge_method=S256";
+
+            window.open(authorizationURL, 'authorizationRequestWindow', 'width=800,height=600,left=200,top=200');
+        }
     </script>
 </head>
 <body>
@@ -57,5 +73,8 @@
 
     <div id="codeChallengeValue"></div>
     <div><input type="button" value="Generate Code Challenge value" onclick="generateCodeChallenge()"/></div>
+
+    <br/>
+    <div><input type="button" value="Get Auth Code" onclick="getAuthCode()"/></div>
 </body>
 </html>
